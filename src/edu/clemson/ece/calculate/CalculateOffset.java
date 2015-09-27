@@ -23,14 +23,14 @@ import org.apache.commons.io.filefilter.NotFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
-public class CalculateCorrelation {
+public class CalculateOffset {
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
-		List<File> files = allSubDirs("C:\\bak-DATA\\usage\\out\\grep-hdfs\\8178375.pbs01\\32");
-		String type = "IO";
-		String filter = "MEM.txt";
+		List<File> files = allSubDirs("C:\\bak-DATA\\usage\\out\\grep-hdfs");
+//		String type = "IO";
+//		String filter = "MEM.txt";
 		
 //		String type = "IO";
 //		String filter = "IO.txt";
@@ -41,8 +41,8 @@ public class CalculateCorrelation {
 //		String type = "BW";
 //		String filter = "TX.txt";
 		
-//		String type = "CPU";
-//		String filter = "txt";
+		String type = "CPU";
+		String filter = "txt";
 		
 		for(File dir : files){
 			
@@ -52,34 +52,51 @@ public class CalculateCorrelation {
 			for(File f : dir.listFiles()){
 				String parent = f.getParent();
 				String name = f.getName();		
-				if(!name.contains(filter)||!parent.contains(type)) continue;
-				list.add(f);
+				if(!name.contains(filter)||!parent.contains(type)) continue;	
+				list.add(f);			
 			}
 			
 			double[][] data = new double[12][];
-			int minLen = 1000;
 			for(int i=0; i<list.size(); i++){
 				data[i] = read_profile(list.get(i).getPath());
-				if(minLen>data[i].length){
-					minLen = data[i].length;
-				}
 			}
 			
-			double[] ave = new double[list.size()];
-			double[] dev = new double[list.size()];
-			double[][] stand = new double[list.size()][];
-			for(int i=0; i<list.size(); i++){
-				ave[i] = average(data[i], data[i].length-minLen, data[i].length-1);
-				dev[i] = deviation(data[i], ave[i], data[i].length-minLen, data[i].length-1);
-				stand[i] = standard_value(data[i], ave[i], dev[i], data[i].length-minLen, data[i].length-1);
-			}
 			
 			for(int i=0; i<list.size()-1; i++){
 				for(int j=i+1; j<list.size(); j++){
-					System.out.println(corr(stand[i], stand[j]));
+					System.out.println(findOffset(data[i], data[j]));
 				}
 			}
+			
 		}
+	}
+	
+	private static int findOffset(double[] a, double[] b){
+		double[] shorter = a.length>b.length ? b : a;
+		double[] longer = a.length>b.length ? a : b;
+		
+		double maxCorr = -1;
+		int offset = 0;
+		
+		for(int x=longer.length-shorter.length; x>=0; x--){
+			double ave_s = average(shorter, 0, shorter.length-1);
+			double ave_l = average(longer, x, shorter.length+x-1);
+			
+			double dev_s = deviation(shorter, ave_s, 0, shorter.length-1);
+			double dev_l = deviation(longer, ave_l, x, shorter.length+x-1);
+			
+			double[] stand_s = standard_value(shorter, ave_s, dev_s, 0, shorter.length-1);
+			double[] stand_l = standard_value(longer, ave_l, dev_l, x, shorter.length+x-1);
+			
+			double corr = corr(stand_s, stand_l);
+			
+			if(corr>maxCorr){
+				maxCorr = corr;
+				offset = x-(longer.length-shorter.length);
+			}
+		}
+
+		return a.length>b.length ? -offset : offset;
 	}
 	
 	public static File[] subDirs(String dir){
