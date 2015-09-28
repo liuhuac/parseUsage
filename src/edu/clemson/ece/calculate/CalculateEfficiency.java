@@ -28,9 +28,9 @@ public class CalculateEfficiency {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
-		List<File> files = allSubDirs("C:\\bak-DATA\\usage\\out\\grep-hdfs\\8178375.pbs01\\32");
-		String type = "IO";
-		String filter = "MEM.txt";
+		List<File> files = allSubDirs("C:\\bak-DATA\\usage\\out\\grep-hdfs");
+//		String type = "IO";
+//		String filter = "MEM.txt";
 		
 //		String type = "IO";
 //		String filter = "IO.txt";
@@ -41,8 +41,8 @@ public class CalculateEfficiency {
 //		String type = "BW";
 //		String filter = "TX.txt";
 		
-//		String type = "CPU";
-//		String filter = "txt";
+		String type = "CPU";
+		String filter = "txt";
 		
 		for(File dir : files){
 			
@@ -57,30 +57,121 @@ public class CalculateEfficiency {
 			}
 			
 			double[][] data = new double[12][];
-			int minLen = 1000;
 			for(int i=0; i<list.size(); i++){
 				data[i] = read_profile(list.get(i).getPath());
-				if(minLen>data[i].length){
-					minLen = data[i].length;
-				}
 			}
 			
-			double[] ave = new double[list.size()];
-			double[] dev = new double[list.size()];
-			double[][] stand = new double[list.size()][];
-			for(int i=0; i<list.size(); i++){
-				ave[i] = average(data[i], data[i].length-minLen, data[i].length-1);
-				dev[i] = deviation(data[i], ave[i], data[i].length-minLen, data[i].length-1);
-				stand[i] = standard_value(data[i], ave[i], dev[i], data[i].length-minLen, data[i].length-1);
-			}
+			double[] env = envelope(data);
+			double[] profile = filter(env);
+			double[] pattern = A2D(profile);
 			
 			for(int i=0; i<list.size()-1; i++){
-				for(int j=i+1; j<list.size(); j++){
-					System.out.println(corr(stand[i], stand[j]));
+				double sum_p = 0;
+				double sum_d = 0;
+				for(int j=pattern.length-data[i].length; j<pattern.length; j++){
+					sum_p += pattern[j];
+					sum_d += pattern[j]<data[i][j-(pattern.length-data[i].length)] ? pattern[j] : data[i][j-(pattern.length-data[i].length)];
 				}
+				System.out.println(sum_d/sum_p);
 			}
 		}
 	}
+	
+	public static double[] envelope(double[][] input){
+		int max = -1;
+		for(int i=0; i<input.length; i++){
+			if(max<input[i].length){
+				max = input[i].length;
+			}
+		}
+		
+		double[] res = new double[max];
+		
+		for(int i=0; i<input.length; i++){
+			for(int j=max-input[i].length; j<max; j++){
+				if(res[j]<input[i][j-(max-input[i].length)]){
+					res[j] = input[i][j-(max-input[i].length)];
+				}
+			}
+		}
+		
+		return res;
+	}
+	
+	public static double[] filter(double[] input) {
+
+		double ALPHA = 0.8; //OSK: lower ALPHA leads to smoother curve
+		double prev = input[0];
+		
+        for ( int i=0; i<input.length; i++ ) {
+        	if (i==0) {
+        		prev = input[0];
+        	} else {
+        		prev = input[i-1];
+        	}
+        	input[i] = ALPHA * input[i] + (1 - ALPHA) * prev;
+        }
+        return input;
+    }
+	
+	public static double[] A2D(double[] input) {
+
+        for ( int i=0; i<input.length; i++ ) {
+        	if (input[i] < 10) {
+        		input[i] = 10;
+        	} else if (input[i] < 20) {
+        		input[i] = 20;
+        	} else if (input[i] < 30) {
+        		input[i] = 30;
+        	}
+        	 else if (input[i] < 40) {
+         		input[i] = 40;
+         	}
+        	 else if (input[i] < 50) {
+         		input[i] = 50;
+         	}
+        	 else if (input[i] < 60) {
+         		input[i] = 60;
+         	}
+        	 else if (input[i] < 70) {
+         		input[i] = 70;
+         	}
+        	 else if (input[i] < 80) {
+         		input[i] = 80;
+         	}
+        	 else if (input[i] < 90) {
+         		input[i] = 90;
+         	}
+        	 else if (input[i] < 100) {
+         		input[i] = 100;
+         	} else {
+         		System.exit(0);
+         	}
+        	
+        }
+        return input;
+    }
+	
+	public static double[] flat(double[] input) {
+
+		int window = 15;
+		
+        for ( int i=0; i<input.length-window; i++ ) {        	
+        	for (int j=1; j<window; j++) {
+        		if(input[i] < input[i+j]) {
+        			input[i] = input[i+j];
+        		}
+        	}
+        }
+        for ( int i=input.length-window; i<input.length; i++ ) { 
+        	for (int j=i; j<input.length; j++) {
+        		if(input[i] < input[j]) {
+        			input[i] = input[j];
+        		}
+        	}
+        }
+        return input;
+    }
 	
 	public static File[] subDirs(String dir){
 		File file = new File(dir);
@@ -112,38 +203,6 @@ public class CalculateEfficiency {
 			}
 		}
 		return res;
-	}
-	
-	private static double corr(double[] stand_a, double[] stand_b) {
-		double sum = 0;
-		for(int i=0; i<stand_a.length; i++){
-			sum += stand_a[i]*stand_b[i];
-		}
-		return sum/(stand_a.length-1);		
-	}
-	
-	private static double[] standard_value(double[] a, double ave_a, double dev_a, int l, int r) {
-		double[] res = new double[r-l+1];
-		for(int i=l; i<=r; i++){
-			res[i-l] = (a[i]-ave_a)/dev_a;
-		}
-		return res;		
-	}
-	
-	private static double deviation(double[] a, double ave, int l, int r) {
-		double sum = 0;
-		for(int i=l; i<=r; i++){
-			sum += Math.pow(a[i]-ave, 2);
-		}
-		return Math.sqrt(sum/(r-l+1));
-	}
-	
-	private static double average(double[] a, int l, int r) {
-		double sum = 0;
-		for(int i=l; i<=r; i++){
-			sum += a[i];
-		}
-		return sum/(r-l+1);		
 	}
 
 	private static double[] read_profile(String fileName) throws IOException {
