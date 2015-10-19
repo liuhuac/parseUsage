@@ -26,11 +26,11 @@ public class CalculateEfficiency {
 //		String type = "BW";
 //		String filter = "RX.txt";
 		
-//		String type = "BW";
-//		String filter = "TX.txt";
+		String type = "BW";
+		String filter = "TX.txt";
 		
-		String type = "CPU";
-		String filter = "txt";
+//		String type = "CPU";
+//		String filter = "txt";
 		
 		for(File dir : files){
 			

@@ -17,8 +17,8 @@ public class CalculateOffset {
 		// TODO Auto-generated method stub
 		
 		List<File> files = allSubDirs("C:\\bak-DATA\\usage\\out\\grep-hdfs");
-//		String type = "IO";
-//		String filter = "MEM.txt";
+		String type = "IO";
+		String filter = "MEM.txt";
 		
 //		String type = "IO";
 //		String filter = "IO.txt";
@@ -29,8 +29,8 @@ public class CalculateOffset {
 //		String type = "BW";
 //		String filter = "TX.txt";
 		
-		String type = "CPU";
-		String filter = "txt";
+//		String type = "CPU";
+//		String filter = "txt";
 		
 		for(File dir : files){
 			
