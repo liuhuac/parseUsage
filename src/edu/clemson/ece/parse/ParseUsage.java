@@ -20,7 +20,9 @@ public class ParseUsage {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
-		Parameters.end = 1;
+		//Parameters.end = 1;
+		CliParser cli = new CliParser();
+		cli.parse(args);
 		
 		List<FileReader> readerList = new ArrayList<>();
 		for(int i=Parameters.start; i<=Parameters.end; i++){

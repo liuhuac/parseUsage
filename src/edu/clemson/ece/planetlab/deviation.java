@@ -96,7 +96,7 @@ public class deviation {
 	private static int findOffset(double[] a, double[] b){
 		double maxCorr = -1;
 		int offset = 0;
-		for(int x=-20; x<=20; x++){
+		for(int x=-10; x<=10; x++){
 			int al = x<0 ? -x : 0;
 			int ar = x<0 ? a.length-1 : a.length-x-1;
 			int bl = x<0 ? 0 : x;
