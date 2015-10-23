@@ -6,8 +6,10 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 
@@ -16,8 +18,8 @@ public class CalculateEfficiency {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
-		List<File> files = allSubDirs("C:\\bak-DATA\\usage\\out\\grep-hdfs");
-//		String type = "IO";
+		List<File> files = allSubDirs("C:\\Share\\ParseGoogleTrace\\0-5");
+		String type = "mem";
 //		String filter = "MEM.txt";
 		
 //		String type = "IO";
@@ -26,8 +28,8 @@ public class CalculateEfficiency {
 //		String type = "BW";
 //		String filter = "RX.txt";
 		
-		String type = "BW";
-		String filter = "TX.txt";
+//		String type = "BW";
+//		String filter = "TX.txt";
 		
 //		String type = "CPU";
 //		String filter = "txt";
@@ -36,31 +38,44 @@ public class CalculateEfficiency {
 			
 			if(!dir.getPath().contains(type)) continue;
 			
-			List<File> list = new ArrayList<>();
+			
+			Map<String, List<File>> map = new HashMap<>();
 			for(File f : dir.listFiles()){
-				String parent = f.getParent();
-				String name = f.getName();		
-				if(!name.contains(filter)||!parent.contains(type)) continue;
-				list.add(f);
-			}
-			
-			double[][] data = new double[12][];
-			for(int i=0; i<list.size(); i++){
-				data[i] = read_profile(list.get(i).getPath());
-			}
-			
-			double[] env = envelope(data);
-			double[] profile = filter(env);
-			double[] pattern = A2D(profile);
-			
-			for(int i=0; i<list.size()-1; i++){
-				double sum_p = 0;
-				double sum_d = 0;
-				for(int j=pattern.length-data[i].length; j<pattern.length; j++){
-					sum_p += pattern[j];
-					sum_d += pattern[j]<data[i][j-(pattern.length-data[i].length)] ? pattern[j] : data[i][j-(pattern.length-data[i].length)];
+				//String parent = f.getParent();
+				String name = f.getName();
+				String key = name.substring(0,name.indexOf('-'));
+				if(map.containsKey(key)){
+					map.get(key).add(f);
+				} else {
+					List<File> list = new ArrayList<>();
+					list.add(f);
+					map.put(key, list);
 				}
-				System.out.println(sum_d/sum_p);
+
+			}
+			
+			for(Map.Entry<String, List<File>> entry : map.entrySet()){
+			
+				List<File> list = entry.getValue();
+				
+				double[][] data = new double[list.size()][];
+				for(int i=0; i<list.size(); i++){
+					data[i] = read_profile(list.get(i).getPath());
+				}
+				
+				double[] env = envelope(data);
+				double[] profile = filter(env);
+				double[] pattern = A2D(profile);
+				
+				for(int i=0; i<list.size()-1; i++){
+					double sum_p = 0;
+					double sum_d = 0;
+					for(int j=pattern.length-data[i].length; j<pattern.length; j++){
+						sum_p += pattern[j];
+						sum_d += pattern[j]<data[i][j-(pattern.length-data[i].length)] ? pattern[j] : data[i][j-(pattern.length-data[i].length)];
+					}
+					System.out.println(sum_d/sum_p);
+				}
 			}
 		}
 	}
@@ -105,33 +120,33 @@ public class CalculateEfficiency {
 	public static double[] A2D(double[] input) {
 
         for ( int i=0; i<input.length; i++ ) {
-        	if (input[i] < 10) {
-        		input[i] = 10;
-        	} else if (input[i] < 20) {
-        		input[i] = 20;
-        	} else if (input[i] < 30) {
-        		input[i] = 30;
+        	if (input[i] < 0.01) {
+        		input[i] = 0.01;
+        	} else if (input[i] < 0.02) {
+        		input[i] = 0.02;
+        	} else if (input[i] < 0.03) {
+        		input[i] = 0.03;
         	}
-        	 else if (input[i] < 40) {
-         		input[i] = 40;
+        	 else if (input[i] < 0.04) {
+         		input[i] = 0.04;
          	}
-        	 else if (input[i] < 50) {
-         		input[i] = 50;
+        	 else if (input[i] < 0.05) {
+         		input[i] = 0.05;
          	}
-        	 else if (input[i] < 60) {
-         		input[i] = 60;
+        	 else if (input[i] < 0.06) {
+         		input[i] = 0.06;
          	}
-        	 else if (input[i] < 70) {
-         		input[i] = 70;
+        	 else if (input[i] < 0.07) {
+         		input[i] = 0.07;
          	}
-        	 else if (input[i] < 80) {
-         		input[i] = 80;
+        	 else if (input[i] < 0.08) {
+         		input[i] = 0.08;
          	}
-        	 else if (input[i] < 90) {
-         		input[i] = 90;
+        	 else if (input[i] < 0.09) {
+         		input[i] = 0.09;
          	}
-        	 else if (input[i] < 100) {
-         		input[i] = 100;
+        	 else if (input[i] < 0.1) {
+         		input[i] = 0.1;
          	} else {
          		System.exit(0);
          	}
