@@ -102,6 +102,7 @@ public class ParseUsage {
 					bw[1].flush();
 				}
 			}
+			fr.br.close();
 		}
 		
 	}
