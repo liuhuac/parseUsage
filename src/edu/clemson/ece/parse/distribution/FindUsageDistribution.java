@@ -104,7 +104,7 @@ public class FindUsageDistribution {
 		int count = 0;
 		for(int i=0; i<Parameters.range; i++){
 			if((i+1)%1000==0){
-				bwConcise.write(String.format("%.5f\t%d\n", ((double)i/1000)/Parameters.range, count));
+				bwConcise.write(String.format("%.5f\t%d\n", (double)i/Parameters.range, count));
 				bwConcise.flush();
 				count = 0;
 			} else {
