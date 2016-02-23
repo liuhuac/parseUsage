@@ -54,7 +54,12 @@ public class FindUnusedResourceTimeSeries {
 				// 18 aggregation type
 				// 19 sampled CPU usage
 				
-				double usage = Double.valueOf(cell[Parameters.field]);
+				double usage;
+				if(cell[Parameters.field].equals("")){
+					usage = 0;
+				} else {
+					usage = Double.valueOf(cell[Parameters.field]);
+				}
 				
 				long time = Long.valueOf(cell[0]);
 				long time1 = Long.valueOf(cell[1]);
