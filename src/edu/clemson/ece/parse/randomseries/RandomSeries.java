@@ -27,6 +27,7 @@ public class RandomSeries {
 		
 		Random r = new Random();
 		int rFileNumber = r.nextInt(500);
+		System.out.println("file: "+rFileNumber);
 		String taskId = "";
 		String jobId = "";
 		
@@ -62,6 +63,7 @@ public class RandomSeries {
 			}
 		}
 		fr.br.close();
+		System.out.println("Job and Task ids:"+jobId+"-"+taskId);
 		
 		File cpufile = new File(Parameters.outpath+jobId+"-"+taskId+"-cpu");
 		cpufile.getParentFile().mkdirs();
@@ -87,6 +89,7 @@ public class RandomSeries {
 			
 		
 		for(int i=0; i<500; i++){
+			System.out.println("Processing "+i);
 			FileReader file = new FileReader(Parameters.path, rFileNumber);
 			String readLine = "";
 			while((readLine=file.br.readLine())!=null){
