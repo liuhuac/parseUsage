@@ -7,6 +7,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+
 public class CliParser {
 
 	public void parse(String[] args){
@@ -22,7 +23,8 @@ public class CliParser {
 		options.addOption( "o", "outpath", true, "output path folder" );
 		options.addOption( "s", "start", true, "starting file index, e.g., 231 for part-00231-of-00500.csv.gz, default 0" );
 		options.addOption( "e", "end", true, "ending file index, e.g., 231 for part-00231-of-00500.csv.gz, default 500" );
-
+		options.addOption( "j", "jobId", true, "job ID, e.g., 5402488769, default 3418309" );
+		options.addOption( "t", "taskId", true, "task ID, e.g., 849, default 0" );
 
 
 		try {
@@ -47,16 +49,24 @@ public class CliParser {
 		    if( line.hasOption( "e" ) ) {
 		    	Parameters.end = Integer.valueOf(line.getOptionValue("e"));
 		    }
+		    if( line.hasOption( "j" ) ) {
+		    	Parameters.jobId = String.valueOf(line.getOptionValue("j"));
+		    	Parameters.specifyTask = true;
+		    }
+		    if( line.hasOption( "t" ) ) {
+		    	Parameters.taskId = String.valueOf(line.getOptionValue("t"));
+		    	Parameters.specifyTask = true;
+		    }
 		    if( line.hasOption( "h" ) ) {
 		    	HelpFormatter formatter = new HelpFormatter();
-	    		formatter.printHelp( "GoogleClusterTraceParser, Author: Liuhua Chen", options );
+		    	formatter.printHelp( "GoogleClusterTraceParser-Find Usage Time Series of A Random Task , Author: Liuhua Chen", options );
 	    		System.exit(0);
 		    }
 		}
 		catch( ParseException exp ) {
 		    System.out.println( "Unexpected exception:" + exp.getMessage() );
 		    HelpFormatter formatter = new HelpFormatter();
-    		formatter.printHelp( "GoogleClusterTraceParser, Author: Liuhua Chen", options );
+		    formatter.printHelp( "GoogleClusterTraceParser-Find Usage Time Series of A Random Task , Author: Liuhua Chen", options );
     		System.exit(0);
 		}
 	}

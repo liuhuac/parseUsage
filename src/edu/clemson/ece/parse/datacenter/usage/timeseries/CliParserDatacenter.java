@@ -41,6 +41,7 @@ public class CliParserDatacenter {
 		options.addOption( "o", "outpath", true, "output path folder" );
 		options.addOption( "s", "start", true, "starting file index, e.g., 231 for part-00231-of-00500.csv.gz, default 0" );
 		options.addOption( "e", "end", true, "ending file index, e.g., 231 for part-00231-of-00500.csv.gz, default 500" );
+		
 
 
 
@@ -63,9 +64,10 @@ public class CliParserDatacenter {
 		    if( line.hasOption( "e" ) ) {
 		    	Parameters.end = Integer.valueOf(line.getOptionValue("e"));
 		    }
+		    
 		    if( line.hasOption( "h" ) ) {
 		    	HelpFormatter formatter = new HelpFormatter();
-	    		formatter.printHelp( "GoogleClusterTraceParser-Find Task Usage Distribution, Author: Liuhua Chen", options );
+	    		formatter.printHelp( "GoogleClusterTraceParser-Find Task Usage Time Series, Author: Liuhua Chen", options );
 	    		System.exit(0);
 		    }
 		}

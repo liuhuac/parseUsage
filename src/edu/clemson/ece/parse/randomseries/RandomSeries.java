@@ -26,43 +26,47 @@ public class RandomSeries {
 		cli.parse(args);
 		
 		Random r = new Random();
-		int rFileNumber = r.nextInt(500);
-		System.out.println("file: "+rFileNumber);
-		String taskId = "";
-		String jobId = "";
+		String taskId = Parameters.taskId;
+		String jobId = Parameters.jobId;
 		
-		FileReader fr = new FileReader(Parameters.path, rFileNumber);
-		int n = 0;
-		String line = "";
-		while((line=fr.br.readLine())!=null){
-			n++;
-			String[] cell = line.split(",");
-			// 0 start time
-			// 1 end time
-			// 2 job ID
-			// 3 task index
-			// 4 machine ID
-			// *5 CPU usage - mean and maximum in 1s window
-			// *6 memory usage
-			// 7 assigned memory
-			// 8 unmapped page cache memory usage
-			// 9 page cache memory usage
-			// 10 maximum memory usage
-			// 11 dis I/O time - mean
-			// 12 local disk space used - mean
-			// 13 CPU rate - max
-			// 14 disk IO time - max
-			// 15 cycles per instruction (CPI)
-			// 16 memory accesses per instruction (MAI)
-			// 17 sampling rate
-			// 18 aggregation type
-			// 19 sampled CPU usage
-			if(r.nextInt(n)==0) {
-				jobId = cell[2];
-				taskId = cell[3];
+		if(!Parameters.specifyTask){
+			int rFileNumber = r.nextInt(500);
+			System.out.println("file: "+rFileNumber);
+			
+			FileReader fr = new FileReader(Parameters.path, rFileNumber);
+			int n = 0;
+			String line = "";
+			while((line=fr.br.readLine())!=null){
+				n++;
+				String[] cell = line.split(",");
+				// 0 start time
+				// 1 end time
+				// 2 job ID
+				// 3 task index
+				// 4 machine ID
+				// *5 CPU usage - mean and maximum in 1s window
+				// *6 memory usage
+				// 7 assigned memory
+				// 8 unmapped page cache memory usage
+				// 9 page cache memory usage
+				// 10 maximum memory usage
+				// 11 dis I/O time - mean
+				// 12 local disk space used - mean
+				// 13 CPU rate - max
+				// 14 disk IO time - max
+				// 15 cycles per instruction (CPI)
+				// 16 memory accesses per instruction (MAI)
+				// 17 sampling rate
+				// 18 aggregation type
+				// 19 sampled CPU usage
+				if(r.nextInt(n)==0) {
+					jobId = cell[2];
+					taskId = cell[3];
+				}
 			}
+			fr.br.close();
 		}
-		fr.br.close();
+		
 		System.out.println("Job and Task ids:"+jobId+"-"+taskId);
 		
 		File cpufile = new File(Parameters.outpath+jobId+"-"+taskId+"-cpu");
@@ -90,7 +94,7 @@ public class RandomSeries {
 		
 		for(int i=0; i<500; i++){
 			System.out.println("Processing "+i);
-			FileReader file = new FileReader(Parameters.path, rFileNumber);
+			FileReader file = new FileReader(Parameters.path, i);
 			String readLine = "";
 			while((readLine=file.br.readLine())!=null){
 				String[] cell = readLine.split(",");
