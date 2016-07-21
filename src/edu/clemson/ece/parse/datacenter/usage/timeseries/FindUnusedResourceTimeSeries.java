@@ -78,7 +78,7 @@ public class FindUnusedResourceTimeSeries {
 			
 			gzip.close();
 			
-			System.out.println(timeIndex+", "+curUsage);
+			//System.out.println(timeIndex+", "+curUsage);
 		}
 		
 	}
